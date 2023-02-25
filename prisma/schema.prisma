@@ -11,19 +11,53 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
+  id       Int      @id @default(autoincrement())
+  username String   @unique
+  name     String?
   password String
-  name  String?
-  posts Post[]
+  Review   Review[]
 }
 
-model Post {
+model Restaurant {
+  id          Int      @id @default(autoincrement())
+  name        String
+  location    String?
+  coordinates String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  Food        Food[]
+}
+
+model Food {
+  id           Int        @id @default(autoincrement())
+  name         String
+  price        Int?
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId Int
+  category     Category?  @relation(fields: [categoryId], references: [id])
+  categoryId   Int?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  Review       Review[]
+}
+
+model Category {
   id        Int      @id @default(autoincrement())
+  name      String
+  price     Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  title     String
-  content   String?
-  author    User?    @relation(fields: [authorId], references: [id])
-  authorId  Int?
+  Food      Food[]
+}
+
+model Review {
+  user   User    @relation(fields: [userId], references: [id])
+  food   Food    @relation(fields: [foodId], references: [id])
+  userId Int
+  foodId Int
+  Benna  Int
+  Cheb3a Int
+  note   String?
+
+  @@id([userId, foodId])
 }

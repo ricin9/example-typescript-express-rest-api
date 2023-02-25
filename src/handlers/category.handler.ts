@@ -1,57 +1,59 @@
 import db from "../db";
 import { Request, Response, NextFunction } from "express";
-import { generateHash } from "../common/crypto";
-export const getUsers = async (
+import AuthenticatedRequest from "../common/interfaces/AuthenticatedRequest";
+
+export const getCategorys = async (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        const users = await db.user.findMany();
-        res.json(users);
+        const categorys = await db.category.findMany();
+        res.json(categorys);
     } catch (err) {
         res.status(404);
-        next(Error("no users found"));
+        next(new Error("no categorys found"));
     }
 };
 
-export const getUser = async (
+export const getCategory = async (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
     const id = parseInt(req.params.id);
     try {
-        const user = await db.user.findUnique({
+        const category = await db.category.findUnique({
             where: {
                 id,
             },
+            include: { Food: true },
         });
-        res.json(user);
+        res.json(category);
     } catch (err) {
         res.status(404);
-        next(new Error("no users found"));
+        next(Error("no categorys found"));
     }
 };
 
-export const createUser = async (
-    req: Request,
+export const createCategory = async (
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
 ) => {
-    req.body.password = await generateHash(req.body.password);
+    const authorId: number = parseInt(req.user?.sub || "0");
     try {
-        const user = await db.user.create({
+        const category = await db.category.create({
             data: req.body,
         });
-        res.json(user);
+        res.json(category);
     } catch (err) {
         res.status(400);
         next(new Error("bad data frr"));
     }
 };
 
-export const updateUser = async (
+export const updateCategory = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -59,18 +61,18 @@ export const updateUser = async (
     const id = parseInt(req.params.id);
 
     try {
-        const user = await db.user.update({
+        const category = await db.category.update({
             where: { id },
             data: req.body,
         });
-        res.json(user);
+        res.json(category);
     } catch (err) {
         res.status(400);
-        next(Error("bad data frr wela not found jcp lmfao"));
+        throw new Error("bad data frr wela not found jcp lmfao");
     }
 };
 
-export const deleteUser = async (
+export const deleteCategory = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -78,14 +80,14 @@ export const deleteUser = async (
     const id = parseInt(req.params.id);
 
     try {
-        const user = await db.user.delete({
+        const category = await db.category.delete({
             where: {
                 id,
             },
         });
-        res.json(user);
+        res.json(category);
     } catch (err) {
         res.status(404);
-        next(Error("user not found"));
+        throw new Error("category not found");
     }
 };

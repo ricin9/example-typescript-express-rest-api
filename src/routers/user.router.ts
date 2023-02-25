@@ -3,7 +3,6 @@ import {
     createUser,
     deleteUser,
     getUser,
-    getUserPosts,
     getUsers,
     updateUser,
 } from "../handlers/user.handler";
@@ -12,16 +11,15 @@ import dataValidation from "../middlewares/dataValidation";
 import createUserSchema from "../schemas/users/createUserSchema";
 import updateUserSchema from "../schemas/users/updateUserSchema";
 
-const userRouter = Router();
+const router = Router();
 
-userRouter.post("/", dataValidation(createUserSchema), createUser);
-userRouter.get("/", getUsers);
-userRouter.get("/:id/posts", getUserPosts);
-userRouter.get("/:id", getUser);
+router.post("/", dataValidation(createUserSchema), createUser);
+router.get("/", getUsers);
+router.get("/:id", getUser);
 
-userRouter.use(authentication);
+router.use(authentication);
 
-userRouter.patch("/:id", dataValidation(updateUserSchema), updateUser);
-userRouter.delete("/:id", deleteUser);
+router.patch("/:id", dataValidation(updateUserSchema), updateUser);
+router.delete("/:id", deleteUser);
 
-export default userRouter;
+export default router;

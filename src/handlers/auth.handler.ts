@@ -8,19 +8,12 @@ export const login = async (
     res: Response,
     next: NextFunction
 ) => {
-    const { email, password } = req.body;
-
     const user = await db.user.findUnique({
-        where: { email },
-        select: {
-            id: true,
-            email: true,
-            password: true,
-        },
+        where: { username: req.body.username },
     });
 
     if (user) {
-        if (await verifyHash(password, user.password)) {
+        if (await verifyHash(req.body.password, user.password)) {
             res.json({
                 token: generateToken(user.id),
             });

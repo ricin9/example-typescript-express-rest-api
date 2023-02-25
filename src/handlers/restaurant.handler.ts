@@ -2,86 +2,78 @@ import db from "../db";
 import { Request, Response, NextFunction } from "express";
 import AuthenticatedRequest from "../common/interfaces/AuthenticatedRequest";
 
-export const getPosts = async (
+export const getRestaurants = async (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
+    console.log(req.query);
     try {
-        const posts = await db.post.findMany({ include: { author: true } });
-        res.json(posts);
+        const restaurants = await db.restaurant.findMany();
+        res.json(restaurants);
     } catch (err) {
         res.status(404);
-        next(new Error("no posts found"));
+        next(new Error("no restaurants found"));
     }
 };
 
-export const getPost = async (
+export const getRestaurant = async (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
     const id = parseInt(req.params.id);
     try {
-        const post = await db.post.findUnique({
+        const restaurant = await db.restaurant.findUnique({
             where: {
                 id,
             },
-            include: { author: true },
+            include: { Food: true },
         });
-        res.json(post);
+        res.json(restaurant);
     } catch (err) {
         res.status(404);
-        next(Error("no posts found"));
+        next(Error("no restaurants found"));
     }
 };
 
-export const createPost = async (
+export const createRestaurant = async (
     req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
 ) => {
-    const { title, content } = req.body;
     const authorId: number = parseInt(req.user?.sub || "0");
     try {
-        const post = await db.post.create({
-            data: {
-                title,
-                content,
-                authorId,
-            },
+        const restaurant = await db.restaurant.create({
+            data: req.body,
         });
-        res.json(post);
+        res.json(restaurant);
     } catch (err) {
         res.status(400);
         next(new Error("bad data frr"));
     }
 };
 
-export const updatePost = async (
+export const updateRestaurant = async (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
     const id = parseInt(req.params.id);
-    const { title, content } = req.body;
 
     try {
-        const post = await db.post.update({
+        const restaurant = await db.restaurant.update({
             where: { id },
-            data: {
-                title,
-                content,
-            },
+            data: req.body,
         });
-        res.json(post);
+        res.json(restaurant);
     } catch (err) {
         res.status(400);
         throw new Error("bad data frr wela not found jcp lmfao");
     }
 };
 
-export const deletePost = async (
+export const deleteRestaurant = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -89,14 +81,14 @@ export const deletePost = async (
     const id = parseInt(req.params.id);
 
     try {
-        const post = await db.post.delete({
+        const restaurant = await db.restaurant.delete({
             where: {
                 id,
             },
         });
-        res.json(post);
+        res.json(restaurant);
     } catch (err) {
         res.status(404);
-        throw new Error("post not found");
+        throw new Error("restaurant not found");
     }
 };

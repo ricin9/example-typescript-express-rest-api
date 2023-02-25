@@ -1,57 +1,59 @@
 import db from "../db";
 import { Request, Response, NextFunction } from "express";
-import { generateHash } from "../common/crypto";
-export const getUsers = async (
+import AuthenticatedRequest from "../common/interfaces/AuthenticatedRequest";
+
+export const getFoods = async (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        const users = await db.user.findMany();
-        res.json(users);
+        const foods = await db.food.findMany();
+        res.json(foods);
     } catch (err) {
         res.status(404);
-        next(Error("no users found"));
+        next(new Error("no foods found"));
     }
 };
 
-export const getUser = async (
+export const getFood = async (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
     const id = parseInt(req.params.id);
     try {
-        const user = await db.user.findUnique({
+        const food = await db.food.findUnique({
             where: {
                 id,
             },
+            include: { category: true, restaurant: true, Review: true },
         });
-        res.json(user);
+        res.json(food);
     } catch (err) {
         res.status(404);
-        next(new Error("no users found"));
+        next(Error("no foods found"));
     }
 };
 
-export const createUser = async (
-    req: Request,
+export const createFood = async (
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
 ) => {
-    req.body.password = await generateHash(req.body.password);
+    const authorId: number = parseInt(req.user?.sub || "0");
     try {
-        const user = await db.user.create({
+        const food = await db.food.create({
             data: req.body,
         });
-        res.json(user);
+        res.json(food);
     } catch (err) {
         res.status(400);
         next(new Error("bad data frr"));
     }
 };
 
-export const updateUser = async (
+export const updateFood = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -59,18 +61,18 @@ export const updateUser = async (
     const id = parseInt(req.params.id);
 
     try {
-        const user = await db.user.update({
+        const food = await db.food.update({
             where: { id },
             data: req.body,
         });
-        res.json(user);
+        res.json(food);
     } catch (err) {
         res.status(400);
-        next(Error("bad data frr wela not found jcp lmfao"));
+        throw new Error("bad data frr wela not found jcp lmfao");
     }
 };
 
-export const deleteUser = async (
+export const deleteFood = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -78,14 +80,14 @@ export const deleteUser = async (
     const id = parseInt(req.params.id);
 
     try {
-        const user = await db.user.delete({
+        const food = await db.food.delete({
             where: {
                 id,
             },
         });
-        res.json(user);
+        res.json(food);
     } catch (err) {
         res.status(404);
-        next(Error("user not found"));
+        throw new Error("food not found");
     }
 };
