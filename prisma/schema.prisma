@@ -2,12 +2,13 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./hello.db"
+  provider = "postgresql"
+  url      = "postgresql://postgres:postgres@localhost:5432/postgres"
 }
 
 model User {
@@ -44,7 +45,6 @@ model Food {
 model Category {
   id        Int      @id @default(autoincrement())
   name      String
-  price     Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   Food      Food[]
